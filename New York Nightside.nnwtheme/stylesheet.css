@@ -1,0 +1,783 @@
+/* =========================================================================
+   New York Nightside
+   A NetNewsWire article theme.
+   Broadsheet typography set in New York, finished with macOS materials.
+   Designed dark-first; the light palette is a warm newsprint fallback.
+   ========================================================================= */
+
+
+/* -------------------------------------------------------------------------
+   1. Tokens
+   ------------------------------------------------------------------------- */
+
+:root {
+	color-scheme: light dark;
+
+	--font-serif: 'New York', ui-serif, 'Iowan Old Style', Charter, Georgia, serif;
+	--font-mono: 'SF Mono', ui-monospace, Menlo, 'Courier New', Courier, monospace;
+
+	/* Light: NetNewsWire's white content pane, warm ink and furniture */
+	--paper:        #ffffff;
+	--paper-raised: #f6f3ec;
+	--ink:          #252320;
+	--ink-muted:    #716c62;
+	--ink-faint:    #9c958b;
+	--rule:         #e1dcd1;
+	--rule-strong:  #252320;
+	--accent:       #0b5edf;
+	--flag:         #b1221c;
+	--selection:    rgba(11, 94, 223, 0.16);
+
+	/* Aliases kept from the stock theme so nothing downstream breaks */
+	--header-table-border-color: var(--rule);
+	--header-color: var(--ink-muted);
+	--body-code-color: var(--ink);
+	--system-message-color: var(--ink-faint);
+	--feedlink-color: var(--flag);
+	--article-title-color: var(--ink);
+	--article-date-color: var(--ink-muted);
+	--table-cell-border-color: var(--rule);
+	--primary-accent-color: var(--accent);
+	--secondary-accent-color: var(--accent);
+	--block-quote-border-color: var(--flag);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* Dark: NetNewsWire's window neutral, warm ivory ink, faded press red */
+		--paper:        #222222;
+		--paper-raised: #2b2b2e;
+		--ink:          #f1ece3;
+		--ink-muted:    #ada79f;
+		--ink-faint:    #78736a;
+		--rule:         #3e3c37;
+		--rule-strong:  #968f84;
+		--accent:       #8ab6ff;
+		--flag:         #e0736a;
+		--selection:    rgba(138, 182, 255, 0.24);
+	}
+}
+
+
+/* -------------------------------------------------------------------------
+   2. Page
+   ------------------------------------------------------------------------- */
+
+body {
+	background-color: var(--paper);
+	color: var(--ink);
+	font-family: var(--font-serif);
+	line-height: 1.6;
+	max-width: 40em;
+	margin-left: auto;
+	margin-right: auto;
+	word-wrap: break-word;
+	font-kerning: normal;
+	font-variant-ligatures: common-ligatures;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+::selection {
+	background-color: var(--selection);
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+a:hover {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+a:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+	border-radius: 3px;
+}
+
+.systemMessage {
+	position: absolute;
+	top: 45%;
+	left: 50%;
+	transform: translateX(-55%) translateY(-50%);
+	color: var(--system-message-color);
+	font-style: italic;
+	-webkit-user-select: none;
+	cursor: default;
+}
+
+
+/* -------------------------------------------------------------------------
+   3. Masthead and article header
+   ------------------------------------------------------------------------- */
+
+.feedHeader {
+	margin: 0 auto 2em;
+	text-align: center;
+}
+
+/* Thick-over-thin press rule, red flag between. */
+.masthead {
+	border-top: 3px solid var(--rule-strong);
+	border-bottom: 1px solid var(--rule);
+	padding: 0.6em 0 0.7em;
+	margin-bottom: 1.6em;
+}
+
+.masthead .feedlink a:link,
+.masthead .feedlink a:visited {
+	color: var(--flag);
+	font-size: 0.68em;
+	font-weight: 700;
+	letter-spacing: 0.24em;
+	text-transform: uppercase;
+}
+
+.feedHeader .avatar {
+	margin: 0 auto 1.1em;
+	line-height: 0;
+}
+
+.feedHeader .avatar img {
+	width: 40px;
+	height: 40px !important;
+	border-radius: 8px;
+	box-shadow: 0 0 0 1px var(--rule);
+}
+
+.articleTitle {
+	margin: 0 auto;
+}
+
+.articleTitle h1 {
+	font-family: var(--font-serif);
+	font-size: 2.1em;
+	font-weight: 700;
+	line-height: 1.12;
+	letter-spacing: -0.014em;
+	text-wrap: balance;
+	margin: 0;
+	padding: 0;
+	color: var(--article-title-color);
+}
+
+.articleTitle h1 a:link,
+.articleTitle h1 a:visited {
+	color: var(--article-title-color);
+	font-weight: inherit;
+}
+
+/* Untitled items: NetNewsWire promotes the dateline to headline duty. */
+.articleTitle:has(a:empty) {
+	display: none;
+}
+
+.byline {
+	margin-top: 0.9em;
+	font-size: 0.8em;
+	font-style: italic;
+	color: var(--ink-muted);
+}
+
+.byline:empty {
+	display: none;
+}
+
+.byline a:link,
+.byline a:visited {
+	color: var(--ink-muted);
+	font-weight: 600;
+	font-style: normal;
+	text-decoration: underline;
+	text-decoration-color: var(--rule);
+	text-underline-offset: 2px;
+}
+
+.articleDateline {
+	margin-top: 0.9em;
+	font-size: 0.68em;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--article-date-color);
+}
+
+.articleDateline a:link,
+.articleDateline a:visited {
+	color: var(--article-date-color);
+	font-weight: 600;
+}
+
+/* Dateline standing in for a missing headline. */
+.articleDatelineTitle {
+	margin-top: 0.4em;
+	font-family: var(--font-serif);
+	font-size: 1.6em;
+	line-height: 1.2;
+	color: var(--article-title-color);
+}
+
+.articleDatelineTitle a:link,
+.articleDatelineTitle a:visited {
+	color: var(--article-title-color);
+	font-weight: 700;
+}
+
+
+/* -------------------------------------------------------------------------
+   4. Article body
+   ------------------------------------------------------------------------- */
+
+.articleBody {
+	margin-top: 1.6em;
+	line-height: 1.62;
+}
+
+.articleBody p {
+	text-align: justify;   /* delete this line for ragged-right setting */
+	-webkit-hyphens: auto;
+	hyphens: auto;
+	margin: 0 0 1.1em;
+}
+
+/* Drop cap, only when the item actually opens on a paragraph. */
+#bodyContainer > p:first-child::first-letter {
+	float: left;
+	font-size: 3.3em;
+	line-height: 0.8;
+	font-weight: 700;
+	margin: 0.05em 0.08em -0.05em 0;
+	color: var(--ink);
+}
+
+.articleBody a:link,
+.articleBody a:visited {
+	font-weight: 500;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+	text-underline-offset: 2px;
+}
+
+.articleBody a:hover {
+	text-decoration-color: var(--accent);
+}
+
+.articleBody h1,
+.articleBody h2,
+.articleBody h3,
+.articleBody h4,
+.articleBody h5,
+.articleBody h6 {
+	font-family: var(--font-serif);
+	font-weight: 700;
+	line-height: 1.2;
+	margin: 1.8em 0 0.5em;
+	text-align: left;
+	-webkit-hyphens: none;
+	hyphens: none;
+}
+
+.articleBody h1 { font-size: 1.5em; }
+.articleBody h2 {
+	font-size: 1.25em;
+	padding-bottom: 0.3em;
+	border-bottom: 1px solid var(--rule);
+}
+.articleBody h3 { font-size: 1.1em; }
+.articleBody h4,
+.articleBody h5,
+.articleBody h6 {
+	font-size: 0.78em;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+}
+
+.articleBody ul,
+.articleBody ol {
+	padding-left: 1.4em;
+	margin: 0 0 1.1em;
+}
+
+.articleBody li {
+	margin-bottom: 0.35em;
+}
+
+.articleBody li::marker {
+	color: var(--ink-faint);
+}
+
+blockquote {
+	background: var(--paper-raised);
+	border-left: 3px solid var(--block-quote-border-color);
+	border-radius: 0 6px 6px 0;
+	margin: 1.6em 0;
+	padding: 1em 1.2em;
+	color: var(--ink-muted);
+	font-size: 0.95em;
+	text-align: left;
+}
+
+blockquote p {
+	text-align: left;
+}
+
+blockquote > blockquote {
+	background: none;
+	border-radius: 0;
+	padding: 0 0 0 1em;
+	margin: 0.6em 0;
+	font-style: italic;
+}
+
+blockquote > *:first-child { margin-block-start: 0; }
+blockquote > *:last-child  { margin-block-end: 0; }
+
+code,
+pre {
+	font-family: var(--font-mono);
+	font-size: 0.9em;
+	-webkit-hyphens: none;
+	hyphens: none;
+	color: var(--body-code-color);
+}
+
+p code,
+li code {
+	background: var(--paper-raised);
+	padding: 0.15em 0.35em;
+	border-radius: 4px;
+}
+
+pre {
+	background: var(--paper-raised);
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 0.9em 1em;
+	margin: 1.4em 0;
+	line-height: 1.45;
+	max-width: 100%;
+	overflow: auto;
+	overflow-y: hidden;
+	word-wrap: normal;
+	word-break: normal;
+	text-align: left;
+}
+
+pre code {
+	background: none;
+	padding: 0;
+	letter-spacing: -0.027em;
+	font-size: 0.94em;
+}
+
+/* Section break: a centred press ornament rather than a plain line. */
+hr {
+	border: none;
+	height: auto;
+	margin: 2.2em 0;
+	text-align: center;
+	overflow: visible;
+}
+
+hr::before {
+	content: "\2766";
+	display: block;
+	color: var(--ink-faint);
+	font-size: 1.05em;
+	line-height: 1;
+	letter-spacing: 0.4em;
+}
+
+sup { vertical-align: top; position: relative; bottom: 0.2rem; }
+sub { vertical-align: bottom; position: relative; top: 0.2rem; }
+
+
+/* -------------------------------------------------------------------------
+   5. Media
+   ------------------------------------------------------------------------- */
+
+img, figure, video, div, object {
+	max-width: 100%;
+	height: auto !important;
+	margin: 0 auto;
+}
+
+img {
+	border-radius: 6px;
+}
+
+iframe {
+	max-width: 100%;
+	margin: 0 auto;
+	border-radius: 6px;
+}
+
+iframe.nnw-constrained {
+	max-height: 50vw;
+}
+
+figure {
+	margin: 1.8em auto;
+}
+
+figcaption {
+	margin-top: 0.6em;
+	font-size: 0.76em;
+	line-height: 1.4;
+	color: var(--ink-muted);
+	text-align: center;
+	font-style: italic;
+}
+
+.iframeWrap {
+	position: relative;
+	display: block;
+	padding-top: 56.25%;
+}
+
+.iframeWrap iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100% !important;
+	width: 100% !important;
+}
+
+
+/* -------------------------------------------------------------------------
+   6. Tables
+   ------------------------------------------------------------------------- */
+
+.nnw-overflow {
+	overflow-x: auto;
+	margin: 1.6em 0;
+}
+
+.nnw-overflow table {
+	margin-bottom: 1px;
+	border-spacing: 0;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	overflow: hidden;
+	font-size: 0.92em;
+	text-align: left;
+}
+
+.nnw-overflow table table {
+	margin-bottom: 0;
+	border: none;
+}
+
+.nnw-overflow td,
+.nnw-overflow th {
+	-webkit-hyphens: none;
+	hyphens: none;
+	word-break: normal;
+	border: 1px solid var(--table-cell-border-color);
+	border-top: none;
+	border-left: none;
+	padding: 0.5em 0.7em;
+}
+
+.nnw-overflow th {
+	font-size: 0.82em;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--ink-muted);
+	background: var(--paper-raised);
+}
+
+.nnw-overflow tr :matches(td, th):last-child {
+	border-right: none;
+}
+
+.nnw-overflow :matches(thead, tbody, tfoot):last-child > tr:last-child :matches(td, th) {
+	border-bottom: none;
+}
+
+.nnw-overflow td pre {
+	border: none;
+	background: none;
+	padding: 0;
+}
+
+.nnw-overflow table[border="0"] {
+	border-width: 0;
+}
+
+
+/* -------------------------------------------------------------------------
+   7. Footer: source link
+   ------------------------------------------------------------------------- */
+
+.externalLink {
+	margin: 2.4em 0 0;
+	text-align: center;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.externalLink a:link,
+.externalLink a:visited {
+	display: inline-block;
+	padding: 0.4em 1.05em;
+	border: 1px solid var(--rule);
+	border-radius: 980px;
+	background: var(--paper-raised);
+	color: var(--ink-muted);
+	font-size: 0.72em;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	text-decoration: none;
+	transition: color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.externalLink a:hover {
+	color: var(--accent);
+	border-color: var(--accent);
+	text-decoration: none;
+}
+
+.svg-inline--fa {
+	height: 1em;
+	width: 1em;
+	vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+	}
+}
+
+
+/* -------------------------------------------------------------------------
+   8. Footnotes (Newsfoot)
+   ------------------------------------------------------------------------- */
+
+.newsfoot-footnote-container {
+	position: relative;
+	display: inline-block;
+	z-index: 9999;
+}
+
+.newsfoot-footnote-popover {
+	position: absolute;
+	display: block;
+	padding: 1px;
+	margin: 1em;
+	top: 0.75em;
+	left: calc(-1 * (50vw - 1em));
+	right: calc(-1 * (50vw - 1em));
+	max-width: none;
+	border-radius: 8px;
+	box-sizing: border-box;
+	background: var(--rule);
+	color: var(--ink);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.newsfoot-footnote-popover-arrow {
+	content: '';
+	display: block;
+	width: 1em;
+	height: 1em !important;
+	position: absolute;
+	top: -0.5em;
+	left: calc(50% - 0.5em);
+	transform: rotate(45deg);
+	z-index: 0;
+	background: var(--paper-raised);
+	border: 1px solid var(--rule);
+}
+
+.newsfoot-footnote-popover-inner {
+	position: relative;
+	z-index: 1;
+	border-radius: 7px;
+	padding: 1em;
+	background: var(--paper-raised);
+	font-size: 0.92em;
+}
+
+.newsfoot-footnote-popover-inner :first-child { margin-top: 0; }
+.newsfoot-footnote-popover-inner :last-child  { margin-bottom: 0; }
+
+.newsfoot-footnote-popover .reversefootnote,
+.newsfoot-footnote-popover .footnoteBackLink,
+.newsfoot-footnote-popover .footnote-return,
+.newsfoot-footnote-popover a[href*='#fn'] {
+	display: none;
+}
+
+sup[id^='fn'] {
+	vertical-align: baseline;
+}
+
+a.footnote {
+	display: inline-block;
+	text-decoration: none;
+	padding: 0.05em 0.7em;
+	border-radius: 1em;
+	min-width: 1em;
+	text-align: center;
+	font-size: 0.76em;
+	line-height: 1.35em;
+	position: relative;
+	top: -0.1em;
+}
+
+body a.footnote,
+body a.footnote:visited,
+.newsfoot-footnote-popover + a.footnote:hover {
+	background: var(--rule);
+	color: var(--ink);
+	transition: background-color 200ms ease-out;
+}
+
+a.footnote:hover,
+.newsfoot-footnote-popover + a.footnote {
+	background: var(--flag);
+	color: #fff;
+	transition: background-color 200ms ease-out;
+}
+
+
+/* -------------------------------------------------------------------------
+   9. Feed-specific fixes and junk removal (from the stock theme)
+   ------------------------------------------------------------------------- */
+
+.feedbin--article-wrap {
+	border-top: 1px solid var(--rule);
+}
+
+.x-netnewswire-hide {
+	display: none;
+}
+
+.wp-smiley {
+	height: 1em;
+	max-height: 1em;
+}
+
+.twitterAvatar {
+	vertical-align: middle;
+	border-radius: 6px;
+	height: 1.7em;
+	width: 1.7em;
+}
+
+.twitterUsername {
+	line-height: 1.2;
+	margin-left: 4px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.twitterScreenName,
+.twitterTimestamp {
+	font-size: 66%;
+	color: var(--ink-muted);
+}
+
+iframe[src*="feedads"],
+iframe[src*="doubleclick"],
+iframe[src*="plusone.google"] {
+	display: none !important;
+}
+
+a[href*=".ads."],
+a[href*="feedads"],
+a[href*="doubleclick"],
+a[href*="//ads."],
+a[href*="api.tweetmeme"],
+a[href*="delicious.com/post?"],
+a[href*="digg.com/submit?"],
+a[href*="google.com/bookmarks/mark?"],
+a[href*="posterous.com/share?"],
+a[href*="tumblr.com/share?"],
+a[href*="linkedin.com/shareArticle?"],
+a[href*="facebook.com/share.php?"],
+a[href*="http://twitter.com/home?"],
+a[href*="addtoany.com/share_save"] {
+	display: none !important;
+}
+
+img[src*=".ads."],
+img[src*="//ads."],
+img[src*="doubleclick"],
+img[src*="feedads"],
+img[src*="feedburner"],
+img[src*="feedblitz"],
+img[src*="share-buttons"] {
+	display: none !important;
+}
+
+
+/* -------------------------------------------------------------------------
+   10. Platform sizing
+   ------------------------------------------------------------------------- */
+
+/* iOS / iPadOS */
+@supports (-webkit-touch-callout: none) {
+
+	body {
+		margin-top: 4px;
+		margin-bottom: 24px;
+		padding-left: 20px;
+		padding-right: 20px;
+		font-size: [[font-size]]px;
+	}
+
+	.articleTitle h1 {
+		font-size: 1.85em;
+	}
+
+	.newsfoot-footnote-popover {
+		box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+	}
+
+	.activityIndicatorWrap {
+		position: relative;
+	}
+
+	.activityIndicator {
+		z-index: 1;
+		width: 64px;
+		height: 64px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+}
+
+/* macOS */
+@supports not (-webkit-touch-callout: none) {
+
+	body {
+		margin-top: 22px;
+		margin-bottom: 64px;
+		padding-left: 48px;
+		padding-right: 48px;
+		font-size: 18px;
+	}
+
+	/* Reader text-size preference, applied to the article body only. */
+	.smallText   { font-size: 20px; }
+	.mediumText  { font-size: 22px; }
+	.largeText   { font-size: 24px; }
+	.xlargeText  { font-size: 26px; }
+	.xxlargeText { font-size: 28px; }
+
+}
