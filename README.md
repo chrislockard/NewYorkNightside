@@ -11,12 +11,12 @@
 A theme for [NetNewsWire](https://netnewswire.com) that sets articles like a
 broadsheet and finishes them like a Mac app.
 
-Set in Apple's **New York** throughout, with a thick-over-thin press rule at the
-masthead, the feed name in letterspaced caps, a drop cap on the opening
-paragraph, justified body copy with automatic hyphenation, and a fleuron (❦) in
-place of the usual horizontal rule. The macOS half shows up in the details:
-softly rounded media and code blocks, a pill-shaped source link at the foot, and
-system-blue links.
+Set in Apple's [**New York**](https://developer.apple.com/fonts/) throughout,
+with a thick-over-thin press rule at the masthead, the feed name in letterspaced
+caps, a drop cap on the opening paragraph, justified body copy with automatic
+hyphenation, and a fleuron (❦) in place of the usual horizontal rule. The macOS
+half shows up in the details: softly rounded media and code blocks, a
+pill-shaped source link at the foot, and system-blue links.
 
 Built dark-first. Both palettes are tuned to sit flush against NetNewsWire's own
 window colors, so the reading pane doesn't float on a different shade from the
