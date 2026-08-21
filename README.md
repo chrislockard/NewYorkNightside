@@ -1,12 +1,6 @@
 # New York Nightside
 
-**Dark mode**
-
-![New York Nightside in dark mode](docs/nyn-dark.png)
-
-**Light mode**
-
-![New York Nightside in light mode](docs/nyn-light.png)
+![New York Nightside in dark and light mode](docs/nyn-split.png)
 
 A theme for [NetNewsWire](https://netnewswire.com) that sets articles like a
 broadsheet and finishes them like a Mac app.
