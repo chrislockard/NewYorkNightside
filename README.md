@@ -18,13 +18,23 @@ timeline beside it.
 
 ## Install
 
-**One click:** paste this into your browser's address bar.
+**iPhone and iPad:** GitHub won't render `netnewswire://` links as clickable, so
+copy the full URL below, paste it into Safari's address bar, and confirm that you
+want to open NetNewsWire. NetNewsWire then downloads and installs the theme.
 
-```
-netnewswire://theme/add?url=https://github.com/chrislockard/NewYorkNightside/releases/latest/download/NewYorkNightside.nnwtheme.zip
+```text
+netnewswire://theme/add?url=https%3A%2F%2Fgithub.com%2Fchrislockard%2FNewYorkNightside%2Freleases%2Flatest%2Fdownload%2FNewYorkNightside.nnwtheme.zip
 ```
 
-**Manually:** download the `.nnwtheme` bundle, then in NetNewsWire go to **Settings → Open Themes Folder** and drop it in. On iOS, save the bundle somewhere reachable from the Files app, then **Settings → Theme → +**.
+**macOS:** paste the same URL into Safari, or run it from Terminal:
+
+```sh
+open 'netnewswire://theme/add?url=https%3A%2F%2Fgithub.com%2Fchrislockard%2FNewYorkNightside%2Freleases%2Flatest%2Fdownload%2FNewYorkNightside.nnwtheme.zip'
+```
+
+**Manually:** download
+[NewYorkNightside.nnwtheme.zip](https://github.com/chrislockard/NewYorkNightside/releases/latest/download/NewYorkNightside.nnwtheme.zip)
+from the latest release and unzip it, then in NetNewsWire go to **Settings → Open Themes Folder** and drop it in. On iOS, save the bundle somewhere reachable from the Files app, then **Settings → Theme → +**.
 
 Select it under **Settings → General → Article Theme** on macOS, or **Settings → Articles → Theme** on iOS.
 
@@ -68,11 +78,17 @@ Common changes:
 
 Both palettes hold roughly the same text contrast (about 13.5:1 dark, 15.7:1 light), so neither mode reads noticeably heavier than the other.
 
-## Support
+## Feedback
 
-This is published as-is and isn't actively maintained — I made it for my own
-reading and put it up in case it's useful to someone else. You're welcome to
-fork it and make it yours; that'll be faster than waiting on me.
+New York Nightside is actively maintained. If an article renders badly or
+something looks off, please
+[open an issue](https://github.com/chrislockard/NewYorkNightside/issues/new).
+Include a link to the feed or article, your NetNewsWire and OS versions, light
+or dark mode, and a screenshot if you can. Suggestions are welcome too.
+
+If the same problem shows up in NetNewsWire's built-in themes, it's probably a
+NetNewsWire issue. Report it to
+[the NetNewsWire project](https://github.com/Ranchero-Software/NetNewsWire/issues) instead.
 
 ## License
 
