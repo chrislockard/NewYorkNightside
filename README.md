@@ -51,8 +51,11 @@ Select it under **Settings → General → Article Theme** on macOS, or **Settin
   items uses the CSS `:has()` selector, which needs Safari 15.4 or later. On
   older systems, untitled items will show an empty gap where the headline would
   be. Everything else degrades cleanly.
-- Feeds that open with an image rather than a paragraph won't get a drop cap.
-  That's deliberate — a drop cap floating beside a photo looks like a mistake.
+- The drop cap goes on the first real paragraph, wherever the feed puts it.
+  Short items (under about 80 words) and posts that open with an image,
+  heading or quote don't get one. That's deliberate: a drop cap floating beside
+  a photo looks like a mistake. An all-italic editor's note at the top is
+  skipped, and the drop cap goes on the paragraph after it.
 
 ## Tweaking it
 
@@ -66,7 +69,7 @@ Common changes:
 | Want | Do this |
 | --- | --- |
 | Ragged-right instead of justified | Delete the `text-align: justify` line in `.articleBody p` (it's commented) |
-| No drop cap | Delete the `#bodyContainer:not(.noDropCap) > p:first-child::first-letter` rule |
+| No drop cap | Delete the `#bodyContainer .dropCap::first-letter` rule |
 | A different serif | Change `--font-serif` at the top |
 | Wider or narrower measure | Change `max-width` on `body` (currently `40em`) |
 

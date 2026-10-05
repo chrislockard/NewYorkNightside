@@ -101,15 +101,71 @@ body: The body of the article.
 	}
 
 	/*
-	A drop cap only suits a real opening paragraph. Skip it when the first
-	paragraph is short, like the "Article URL: ..." lines in link aggregators.
+	Drop cap. Feeds mark up their opening very differently: plain <p>s, <div>s
+	inside wrapper <div>s (HEY World), or bare text with no tags (The Register).
+	So find the first block that actually holds text, wherever it is, and mark
+	it with .dropCap. Rules:
+	- Skip short items (under 80 words), like link-aggregator entries.
+	- No drop cap if an image, heading, quote, list, table or code block comes
+	  before the first text. A drop cap beside a photo looks like a mistake.
+	- Skip empty spacers (<p>&nbsp;</p>, <div><br></div>) and opening
+	  paragraphs set entirely in italics, which are usually an editor's note.
 	*/
+	const dropCapStopTags = /^(IMG|PICTURE|FIGURE|VIDEO|AUDIO|IFRAME|SVG|CANVAS|OBJECT|EMBED|H[1-6]|BLOCKQUOTE|PRE|TABLE|UL|OL|DL)$/;
+	const dropCapMedia = 'img, picture, video, audio, iframe, svg, canvas, object, embed';
+
+	function isInlineElement(element) {
+		return getComputedStyle(element).display.startsWith('inline');
+	}
+
+	function isItalicNote(element) {
+		let only = element.children.length === 1 ? element.firstElementChild : null;
+		return only !== null && /^(EM|I)$/.test(only.tagName) &&
+			only.textContent.trim() !== '' &&
+			only.textContent.trim() === element.textContent.trim();
+	}
+
+	/* Returns the block to mark, null to give up, or undefined to keep looking. */
+	function findDropCapBlock(node) {
+		for (let child of node.childNodes) {
+			if (child.nodeType === Node.TEXT_NODE) {
+				if (child.textContent.trim() !== '') {
+					return node;
+				}
+				continue;
+			}
+			if (child.nodeType !== Node.ELEMENT_NODE || child.tagName === 'BR' || child.tagName === 'HR') {
+				continue;
+			}
+			if (dropCapStopTags.test(child.tagName)) {
+				return null;
+			}
+			if (isInlineElement(child)) {
+				if (child.textContent.trim() !== '') {
+					return node;
+				}
+				if (child.querySelector(dropCapMedia)) {
+					return null;
+				}
+				continue;
+			}
+			if (isItalicNote(child)) {
+				continue;
+			}
+			let found = findDropCapBlock(child);
+			if (found !== undefined) {
+				return found;
+			}
+		}
+		return undefined;
+	}
+
 	if (bodyContainer) {
-		let firstParagraph = bodyContainer.firstElementChild;
-		if (firstParagraph && firstParagraph.tagName === 'P') {
-			let firstWords = firstParagraph.textContent.trim().split(/\s+/).filter(Boolean).length;
-			if (firstWords < 20) {
-				bodyContainer.classList.add('noDropCap');
+		let bodyWords = bodyContainer.textContent.trim().split(/\s+/).filter(Boolean).length;
+		if (bodyWords >= 80) {
+			let dropCapBlock = findDropCapBlock(bodyContainer);
+			if (dropCapBlock) {
+				dropCapBlock.classList.add('dropCap');
 			}
 		}
 	}

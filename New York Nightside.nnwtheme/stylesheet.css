@@ -266,17 +266,22 @@ a:focus-visible {
 	line-height: 1.62;
 }
 
-.articleBody p {
+.articleBody p,
+.articleBody .trix-content > div {
 	text-align: justify;   /* delete this line for ragged-right setting */
 	-webkit-hyphens: auto;
 	hyphens: auto;
 	text-wrap: pretty;
+}
+
+.articleBody p {
 	margin: 0 0 1.1em;
 }
 
-/* Drop cap, only when the item actually opens on a paragraph. template.html
-   adds .noDropCap when that paragraph is too short to carry one. */
-#bodyContainer:not(.noDropCap) > p:first-child::first-letter {
+/* Drop cap. template.html adds .dropCap to the block that holds the opening
+   text (not always a <p>, and not always the first one); see its comments. */
+#bodyContainer .dropCap::first-letter,
+#bodyContainer.dropCap::first-letter {
 	float: left;
 	font-size: 3.3em;
 	line-height: 0.8;
@@ -305,7 +310,8 @@ a:focus-visible {
 /* text-wrap: pretty would rather push the whole URL to the next line than
    split it, which brings the gap back. Use plain wrapping around bare URLs. */
 .articleBody p:has(a.bareUrl),
-.articleBody li:has(a.bareUrl) {
+.articleBody li:has(a.bareUrl),
+.articleBody .trix-content > div:has(a.bareUrl) {
 	text-wrap: wrap;
 }
 
@@ -955,7 +961,8 @@ img[src*="share-buttons"] {
 	}
 
 	/* A column this narrow opens rivers when justified, even with hyphenation. */
-	.articleBody p {
+	.articleBody p,
+	.articleBody .trix-content > div {
 		text-align: left;
 	}
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## v4 — 2026-10-05
+
+- **Drop caps show up more consistently.** Whether an article gets one now
+  depends on its total length (80 words or more), not on how long its first
+  paragraph is. Long posts that open with a short line, like many on Daring
+  Fireball and Schneier on Security, get their drop cap back.
+- **Drop caps work with more feed formats:** paragraphs nested in wrapper
+  `<div>`s (HEY World), and feeds that send plain text with no paragraph tags
+  (The Register).
+- **Editor's notes are skipped.** If a post opens with an all-italic note
+  ("This essay originally appeared in…"), the drop cap goes on the paragraph
+  after it.
+- **HEY World posts** now get the same justified, hyphenated text as other
+  feeds.
+
 ## v3 — 2026-10-05
 
 - **Reading time.** Articles that take four minutes or more show an estimate
