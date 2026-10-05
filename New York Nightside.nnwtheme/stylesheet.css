@@ -27,6 +27,7 @@
 	--accent:       #0b5edf;
 	--flag:         #b1221c;
 	--selection:    rgba(11, 94, 223, 0.16);
+	--link-underline: color-mix(in srgb, var(--accent) 45%, transparent);
 
 	/* Aliases kept from the stock theme so nothing downstream breaks */
 	--header-table-border-color: var(--rule);
@@ -55,6 +56,25 @@
 		--accent:       #8ab6ff;
 		--flag:         #e0736a;
 		--selection:    rgba(138, 182, 255, 0.24);
+	}
+}
+
+/* Increase Contrast (macOS and iOS accessibility setting). Secondary text
+   reaches at least 7:1, faint text 4.5:1 and rules 3:1 against the paper. */
+@media (prefers-contrast: more) {
+	:root {
+		--ink-muted:      #4f4b44;
+		--ink-faint:      #6b665d;
+		--rule:           #8f887c;
+		--link-underline: var(--accent);
+	}
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+	:root {
+		--ink-muted:      #d4cec5;
+		--ink-faint:      #aaa49a;
+		--rule:           #77726a;
 	}
 }
 
@@ -211,6 +231,16 @@ a:focus-visible {
 	font-weight: 600;
 }
 
+/* Reading time, filled in by template.html for longer pieces only. */
+.readingTime[hidden] {
+	display: none;
+}
+
+.readingTime::before {
+	content: "\00B7";
+	margin: 0 0.6em;
+}
+
 /* Dateline standing in for a missing headline. */
 .articleDatelineTitle {
 	margin-top: 0.4em;
@@ -240,11 +270,13 @@ a:focus-visible {
 	text-align: justify;   /* delete this line for ragged-right setting */
 	-webkit-hyphens: auto;
 	hyphens: auto;
+	text-wrap: pretty;
 	margin: 0 0 1.1em;
 }
 
-/* Drop cap, only when the item actually opens on a paragraph. */
-#bodyContainer > p:first-child::first-letter {
+/* Drop cap, only when the item actually opens on a paragraph. template.html
+   adds .noDropCap when that paragraph is too short to carry one. */
+#bodyContainer:not(.noDropCap) > p:first-child::first-letter {
 	float: left;
 	font-size: 3.3em;
 	line-height: 0.8;
@@ -258,8 +290,23 @@ a:focus-visible {
 	font-weight: 500;
 	text-decoration: underline;
 	text-decoration-thickness: 1px;
-	text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+	text-decoration-color: var(--link-underline);
 	text-underline-offset: 2px;
+}
+
+/* Bare-URL links (tagged by template.html) may break at any character, so they
+   fill out a justified line instead of leaving wide gaps before them. */
+.articleBody a.bareUrl {
+	word-break: break-all;
+	-webkit-hyphens: none;
+	hyphens: none;
+}
+
+/* text-wrap: pretty would rather push the whole URL to the next line than
+   split it, which brings the gap back. Use plain wrapping around bare URLs. */
+.articleBody p:has(a.bareUrl),
+.articleBody li:has(a.bareUrl) {
+	text-wrap: wrap;
 }
 
 .articleBody a:hover {
@@ -305,6 +352,7 @@ a:focus-visible {
 
 .articleBody li {
 	margin-bottom: 0.35em;
+	text-wrap: pretty;
 }
 
 .articleBody li::marker {
@@ -396,6 +444,66 @@ hr::before {
 sup { vertical-align: top; position: relative; bottom: 0.2rem; }
 sub { vertical-align: bottom; position: relative; top: 0.2rem; }
 
+/* Highlighter in the flag colour; the browser's yellow glares in dark mode. */
+mark {
+	background: color-mix(in srgb, var(--flag) 22%, transparent);
+	color: inherit;
+	padding: 0 0.15em;
+	border-radius: 2px;
+}
+
+/* Keycaps: a small raised Mac key. */
+kbd {
+	font-family: var(--font-mono);
+	font-size: 0.8em;
+	padding: 0.1em 0.4em;
+	background: var(--paper-raised);
+	border: 1px solid var(--rule);
+	border-bottom-width: 2px;
+	border-radius: 4px;
+	white-space: nowrap;
+}
+
+/* Definition lists: terms set bold, definitions indented beneath. */
+.articleBody dl {
+	margin: 0 0 1.1em;
+}
+
+.articleBody dt {
+	font-weight: 700;
+	margin-top: 0.8em;
+}
+
+.articleBody dd {
+	margin: 0.2em 0 0 1.4em;
+}
+
+/* Disclosure blocks: bracketed by hairline rules like a sidebar story. */
+.articleBody details {
+	border-top: 1px solid var(--rule);
+	border-bottom: 1px solid var(--rule);
+	margin: 1.4em 0;
+	padding: 0.6em 0;
+}
+
+.articleBody summary {
+	cursor: pointer;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.articleBody summary::marker {
+	color: var(--ink-faint);
+}
+
+.articleBody details[open] > summary {
+	margin-bottom: 0.6em;
+}
+
+.articleBody details > :last-child {
+	margin-bottom: 0;
+}
+
 
 /* -------------------------------------------------------------------------
    5. Media
@@ -415,6 +523,12 @@ iframe {
 	max-width: 100%;
 	margin: 0 auto;
 	border-radius: 6px;
+}
+
+audio {
+	display: block;
+	width: 100%;
+	margin: 1.4em 0;
 }
 
 iframe.nnw-constrained {
@@ -492,11 +606,11 @@ figcaption {
 	background: var(--paper-raised);
 }
 
-.nnw-overflow tr :matches(td, th):last-child {
+.nnw-overflow tr :is(td, th):last-child {
 	border-right: none;
 }
 
-.nnw-overflow :matches(thead, tbody, tfoot):last-child > tr:last-child :matches(td, th) {
+.nnw-overflow :is(thead, tbody, tfoot):last-child > tr:last-child :is(td, th) {
 	border-bottom: none;
 }
 
@@ -807,5 +921,59 @@ img[src*="share-buttons"] {
 	.largeText   { font-size: 24px; }
 	.xlargeText  { font-size: 26px; }
 	.xxlargeText { font-size: 28px; }
+
+}
+
+
+/* -------------------------------------------------------------------------
+   11. Narrow columns and touch
+   Comes last so it overrides the platform padding above. Applies to iPhone,
+   iPad Split View, and narrow Mac reading panes alike.
+   ------------------------------------------------------------------------- */
+
+@media (max-width: 540px) {
+
+	body {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.feedHeader {
+		margin-bottom: 1.5em;
+	}
+
+	.masthead {
+		margin-bottom: 1.2em;
+	}
+
+	.articleTitle h1 {
+		font-size: 1.6em;
+	}
+
+	.articleBody {
+		line-height: 1.5;
+	}
+
+	/* A column this narrow opens rivers when justified, even with hyphenation. */
+	.articleBody p {
+		text-align: left;
+	}
+
+	blockquote {
+		padding: 0.8em 1em;
+	}
+
+}
+
+/* Larger hit areas for the small header links, without moving anything. */
+@media (any-pointer: coarse) {
+
+	.masthead .feedlink a,
+	.byline a,
+	.articleDateline a {
+		display: inline-block;
+		padding: 12px 0;
+		margin: -12px 0;
+	}
 
 }

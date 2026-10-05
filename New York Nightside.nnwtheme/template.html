@@ -44,7 +44,7 @@ body: The body of the article.
 
 	<div class="byline">[[byline]]</div>
 
-	<div class="[[dateline_style]]"><a href="[[preferred_link]]">[[datetime_medium]]</a></div>
+	<div class="[[dateline_style]]"><a href="[[preferred_link]]">[[datetime_medium]]</a><span class="readingTime" hidden></span></div>
 
 </header>
 
@@ -68,6 +68,50 @@ body: The body of the article.
 	} else {
 		let host = externalLinkAnchor.hostname;
 		externalLinkHost.innerHTML = host + " " + '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-circle-right" class="svg-inline--fa fa-arrow-circle-right fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8c137 0 248 111 248 248S393 504 256 504 8 393 8 256 119 8 256 8zm-28.9 143.6l75.5 72.4H120c-13.3 0-24 10.7-24 24v16c0 13.3 10.7 24 24 24h182.6l-75.5 72.4c-9.7 9.3-9.9 24.8-.4 34.3l11 10.9c9.4 9.4 24.6 9.4 33.9 0L404.3 273c9.4-9.4 9.4-24.6 0-33.9L271.6 106.3c-9.4-9.4-24.6-9.4-33.9 0l-11 10.9c-9.5 9.6-9.3 25.1.4 34.4z"></path></svg>';
+	}
+
+	/*
+	Reading time, shown only for pieces of four minutes or more, and only on a
+	normal dateline (not when the dateline stands in for a missing headline).
+	Words are counted on whitespace at 225 words per minute.
+	*/
+	let readingTime = document.querySelector('.articleDateline .readingTime');
+	let bodyContainer = document.getElementById('bodyContainer');
+	if (readingTime && bodyContainer) {
+		let words = bodyContainer.textContent.trim().split(/\s+/).filter(Boolean).length;
+		let minutes = Math.round(words / 225);
+		if (minutes >= 4) {
+			readingTime.textContent = minutes + ' min read';
+			readingTime.setAttribute('aria-label', 'Estimated reading time: ' + minutes + ' minutes');
+			readingTime.removeAttribute('hidden');
+		}
+	}
+
+	/*
+	Links whose text is a bare URL (common in link aggregators like hnrss) are
+	one long unbreakable word. In justified text the URL drops to the next line
+	and leaves huge gaps behind it. Let these break anywhere so they fill the line.
+	*/
+	if (bodyContainer) {
+		bodyContainer.querySelectorAll('a').forEach(function (link) {
+			if (/^\s*(https?:\/\/|www\.)\S+\s*$/i.test(link.textContent)) {
+				link.classList.add('bareUrl');
+			}
+		});
+	}
+
+	/*
+	A drop cap only suits a real opening paragraph. Skip it when the first
+	paragraph is short, like the "Article URL: ..." lines in link aggregators.
+	*/
+	if (bodyContainer) {
+		let firstParagraph = bodyContainer.firstElementChild;
+		if (firstParagraph && firstParagraph.tagName === 'P') {
+			let firstWords = firstParagraph.textContent.trim().split(/\s+/).filter(Boolean).length;
+			if (firstWords < 20) {
+				bodyContainer.classList.add('noDropCap');
+			}
+		}
 	}
 
 	/* Hide the feed icon when the feed has no avatar, so the masthead doesn't show a broken image. */

@@ -12,6 +12,11 @@ hyphenation, and a fleuron (❦) in place of the usual horizontal rule. The macO
 half shows up in the details: softly rounded media and code blocks, a
 pill-shaped source link at the foot, and system-blue links.
 
+Longer articles get an estimated reading time in the dateline. Narrow columns
+on iPhone and in Split View switch to ragged-right text, and the theme respects
+the system's Increase Contrast setting. See [CHANGELOG.md](CHANGELOG.md) for
+what's new in each release.
+
 Built dark-first. Both palettes are tuned to sit flush against NetNewsWire's own
 window colors, so the reading pane doesn't float on a different shade from the
 timeline beside it.
@@ -61,7 +66,7 @@ Common changes:
 | Want | Do this |
 | --- | --- |
 | Ragged-right instead of justified | Delete the `text-align: justify` line in `.articleBody p` (it's commented) |
-| No drop cap | Delete the `#bodyContainer > p:first-child::first-letter` rule |
+| No drop cap | Delete the `#bodyContainer:not(.noDropCap) > p:first-child::first-letter` rule |
 | A different serif | Change `--font-serif` at the top |
 | Wider or narrower measure | Change `max-width` on `body` (currently `40em`) |
 
