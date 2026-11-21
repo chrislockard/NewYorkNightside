@@ -7,15 +7,24 @@ broadsheet and finishes them like a Mac app.
 
 Set in Apple's [**New York**](https://developer.apple.com/fonts/) throughout,
 with a thick-over-thin press rule at the masthead, the feed name in letterspaced
-caps, a drop cap on the opening paragraph, justified body copy with automatic
+caps, a drop cap on the opening paragraph, ragged-right body copy with automatic
 hyphenation, and a fleuron (❦) in place of the usual horizontal rule. The macOS
-half shows up in the details: softly rounded media and code blocks, a
-pill-shaped source link at the foot, and system-blue links.
+half shows up in the details: softly rounded media and code blocks and
+system-blue links.
 
-Longer articles get an estimated reading time in the dateline. Narrow columns
-on iPhone and in Split View switch to ragged-right text, and the theme respects
-the system's Increase Contrast setting. See [CHANGELOG.md](CHANGELOG.md) for
-what's new in each release.
+Longer articles get an estimated reading time in the dateline and a reading
+map: a hairline in the right margin, like the rule between newspaper columns,
+with a dot for each section placed where it falls in the article. Click a dot
+to jump to that section, or drag along the rule to scrub through the piece.
+Articles without headings get five evenly spaced dots instead. The map shows
+in reading panes 440px wide and up (it hides on iPhone), and the theme
+respects the system's Increase Contrast setting.
+
+**New in v5:** body copy is no longer justified. Ragged-right setting with
+hyphenation does away with the wide gaps between words that justified text
+opened up in narrower panes. v5 also adds the reading map, with a hat tip to
+Raisul Chowdhury's [Calm](https://raisul.xyz/projects/calm) theme for the
+inspiration. See [CHANGELOG.md](CHANGELOG.md) for what's new in each release.
 
 Built dark-first. Both palettes are tuned to sit flush against NetNewsWire's own
 window colors, so the reading pane doesn't float on a different shade from the
@@ -51,6 +60,10 @@ Select it under **Settings → General → Article Theme** on macOS, or **Settin
   items uses the CSS `:has()` selector, which needs Safari 15.4 or later. On
   older systems, untitled items will show an empty gap where the headline would
   be. Everything else degrades cleanly.
+- **Some features need JavaScript.** The reading map, drop cap and reading
+  time are added by the theme's script, which only runs when **Enable
+  JavaScript** is on in NetNewsWire's General settings (macOS). With it off,
+  articles still read normally; those three features just don't appear.
 - The drop cap goes on the first real paragraph, wherever the feed puts it.
   Short items (under about 80 words) and posts that open with an image,
   heading or quote don't get one. That's deliberate: a drop cap floating beside
@@ -68,7 +81,8 @@ Common changes:
 
 | Want | Do this |
 | --- | --- |
-| Ragged-right instead of justified | Delete the `text-align: justify` line in `.articleBody p` (it's commented) |
+| Justified instead of ragged-right | Add `text-align: justify;` to `.articleBody p` |
+| No reading map | Add `.readingMap { display: none !important; }` at the end |
 | No drop cap | Delete the `#bodyContainer .dropCap::first-letter` rule |
 | A different serif | Change `--font-serif` at the top |
 | Wider or narrower measure | Change `max-width` on `body` (currently `40em`) |

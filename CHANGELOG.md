@@ -1,5 +1,23 @@
 # Changelog
 
+## v5 — 2026-11-20
+
+- **Reading map.** Articles two screens or longer get a hairline in the right
+  margin with a dot for each section, placed where that section falls in the
+  article. The current section's dot is red. Click a dot to jump to it, drag
+  along the rule to scrub (the drag snaps to nearby dots), or use the arrow
+  keys once a dot has focus. Hovering shows the section's name. Articles with
+  fewer than three usable headings get five depth dots, top to end. It works
+  in reading panes as narrow as 440px, widening the right margin if needed,
+  and hides on iPhone. Inspired by the map in Raisul Chowdhury's
+  [Calm](https://raisul.xyz/projects/calm) theme.
+- **Ragged-right text everywhere.** Body copy is no longer justified, so there
+  are no more wide gaps between words. Hyphenation stays on.
+- **No source-link box.** The capsule at the foot of the article is gone; it
+  sometimes showed up empty. On link posts (Daring Fireball and the like), the
+  linked article now appears as a quiet "Link:" line under the dateline. It's
+  hidden when a post has no outside link, even with JavaScript off.
+
 ## v4 — 2026-10-05
 
 - **Drop caps show up more consistently.** Whether an article gets one now

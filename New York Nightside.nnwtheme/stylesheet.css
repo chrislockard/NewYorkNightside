@@ -241,6 +241,46 @@ a:focus-visible {
 	margin: 0 0.6em;
 }
 
+/* Link posts: the piece being linked to, as a quiet line under the dateline.
+   Hidden when NetNewsWire leaves it empty, with or without JavaScript. */
+.externalLink {
+	margin: 0.7em auto 0;
+	max-width: 80%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.82em;
+	color: var(--ink-faint);
+}
+
+.externalLink[hidden],
+.externalLink:has(a:empty),
+.externalLink:has(a[href=""]) {
+	display: none;
+}
+
+.externalLinkLabel {
+	margin-right: 0.2em;
+	font-size: 0.86em;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.externalLink a:link,
+.externalLink a:visited {
+	color: var(--ink-muted);
+	font-weight: 500;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: var(--rule);
+	text-underline-offset: 2px;
+}
+
+.externalLink a:hover {
+	color: var(--accent);
+	text-decoration-color: var(--accent);
+}
+
 /* Dateline standing in for a missing headline. */
 .articleDatelineTitle {
 	margin-top: 0.4em;
@@ -268,7 +308,6 @@ a:focus-visible {
 
 .articleBody p,
 .articleBody .trix-content > div {
-	text-align: justify;   /* delete this line for ragged-right setting */
 	-webkit-hyphens: auto;
 	hyphens: auto;
 	text-wrap: pretty;
@@ -297,22 +336,6 @@ a:focus-visible {
 	text-decoration-thickness: 1px;
 	text-decoration-color: var(--link-underline);
 	text-underline-offset: 2px;
-}
-
-/* Bare-URL links (tagged by template.html) may break at any character, so they
-   fill out a justified line instead of leaving wide gaps before them. */
-.articleBody a.bareUrl {
-	word-break: break-all;
-	-webkit-hyphens: none;
-	hyphens: none;
-}
-
-/* text-wrap: pretty would rather push the whole URL to the next line than
-   split it, which brings the gap back. Use plain wrapping around bare URLs. */
-.articleBody p:has(a.bareUrl),
-.articleBody li:has(a.bareUrl),
-.articleBody .trix-content > div:has(a.bareUrl) {
-	text-wrap: wrap;
 }
 
 .articleBody a:hover {
@@ -632,73 +655,8 @@ figcaption {
 
 
 /* -------------------------------------------------------------------------
-   7. Footer: source link
+   7. Motion
    ------------------------------------------------------------------------- */
-
-.externalLink {
-	max-width: 24em;
-	margin: 2.6em auto 0;
-	padding-top: 1.6em;
-	border-top: 1px solid var(--rule);
-	text-align: center;
-}
-
-/* No external link on this item: don't leave an empty capsule behind. */
-.externalLink[hidden],
-.externalLink a:empty {
-	display: none;
-}
-
-.externalLink a:link,
-.externalLink a:visited {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 0.3em;
-	min-height: 44px;
-	padding: 0.85em 1.25em;
-	border: 1px solid var(--rule);
-	border-radius: 10px;
-	background: var(--paper-raised);
-	text-decoration: none;
-	transition: border-color 150ms ease-out, background-color 150ms ease-out;
-}
-
-.externalLink a:hover {
-	border-color: var(--accent);
-	text-decoration: none;
-}
-
-.externalLinkLabel {
-	display: block;
-	color: var(--ink-muted);
-	font-size: 0.62em;
-	font-weight: 600;
-	letter-spacing: 0.18em;
-	text-transform: uppercase;
-}
-
-.externalLinkHost {
-	display: block;
-	max-width: 100%;
-	color: var(--accent);
-	font-size: 0.85em;
-	font-weight: 600;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.externalLinkHost .svg-inline--fa {
-	margin-left: 0.35em;
-}
-
-.svg-inline--fa {
-	height: 1em;
-	width: 1em;
-	vertical-align: middle;
-}
 
 @media (prefers-reduced-motion: reduce) {
 	* {
@@ -960,12 +918,6 @@ img[src*="share-buttons"] {
 		line-height: 1.5;
 	}
 
-	/* A column this narrow opens rivers when justified, even with hyphenation. */
-	.articleBody p,
-	.articleBody .trix-content > div {
-		text-align: left;
-	}
-
 	blockquote {
 		padding: 0.8em 1em;
 	}
@@ -983,4 +935,161 @@ img[src*="share-buttons"] {
 		margin: -12px 0;
 	}
 
+}
+
+
+/* -------------------------------------------------------------------------
+   12. Reading map
+   A hairline column rule in the right margin with a dot per section. Built
+   and positioned by template.html, which also decides when it shows.
+   ------------------------------------------------------------------------- */
+
+.readingMap {
+	position: fixed;
+	top: 18vh;
+	bottom: 18vh;
+	width: 28px;
+	transform: translateX(-50%);
+	z-index: 10;
+	cursor: pointer;
+	touch-action: none;
+	-webkit-user-select: none;
+	user-select: none;
+	font-family: var(--font-serif);
+	font-size: 12px;
+}
+
+.readingMap[hidden] {
+	display: none;
+}
+
+/* The rule itself. */
+.readingMap::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+	width: 1px;
+	margin-left: -0.5px;
+	background: var(--rule);
+}
+
+.readingMap ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.readingMap button {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 16px;
+	margin: -8px 0 0;
+	padding: 0;
+	border: none;
+	background: none;
+	cursor: pointer;
+	color: inherit;
+	font: inherit;
+}
+
+/* The dot: hollow for a section, filled in the flag colour when current. */
+.readingMap button::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 7px;
+	height: 7px;
+	box-sizing: border-box;
+	transform: translate(-50%, -50%);
+	border: 1.5px solid var(--ink-faint);
+	border-radius: 50%;
+	background: var(--paper);
+	transition: background-color 150ms ease-out, border-color 150ms ease-out, width 150ms ease-out, height 150ms ease-out;
+}
+
+.readingMap button:hover::before {
+	border-color: var(--ink-muted);
+}
+
+.readingMap button.active::before {
+	width: 9px;
+	height: 9px;
+	border-color: var(--flag);
+	background: var(--flag);
+}
+
+/* Section name, shown beside a dot on hover, keyboard focus and while scrubbing. */
+.readingMap button::after {
+	content: attr(data-label);
+	position: absolute;
+	top: 50%;
+	right: calc(100% + 2px);
+	transform: translateY(-50%);
+	max-width: 18em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 0.4em 0.8em;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	background: var(--paper-raised);
+	color: var(--ink-muted);
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	line-height: 1.3;
+	text-transform: uppercase;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 120ms ease-out, visibility 120ms;
+}
+
+.readingMap:not(.isScrubbing) button:hover::after,
+.readingMap button:focus-visible::after,
+.readingMap.isScrubbing button.active::after {
+	opacity: 1;
+	visibility: visible;
+}
+
+.readingMap button:focus {
+	outline: none;
+}
+
+.readingMap button:focus-visible::before {
+	box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--accent);
+}
+
+/* Touch: wider strip and taller targets (template.html spaces dots to match). */
+@media (pointer: coarse) {
+	.readingMap {
+		width: 44px;
+	}
+
+	.readingMap button {
+		height: 32px;
+		margin-top: -16px;
+	}
+}
+
+/* Make room in the right margin when the map is showing. */
+@media (max-width: 540px) {
+	body.hasMap {
+		padding-right: 40px;
+	}
+}
+
+@supports (-webkit-touch-callout: none) {
+	body.hasMap {
+		padding-right: 48px;
+	}
+}
+
+@media print {
+	.readingMap {
+		display: none;
+	}
 }

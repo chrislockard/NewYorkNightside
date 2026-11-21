@@ -46,28 +46,31 @@ body: The body of the article.
 
 	<div class="[[dateline_style]]"><a href="[[preferred_link]]">[[datetime_medium]]</a><span class="readingTime" hidden></span></div>
 
+	<div class="externalLink"><span class="externalLinkLabel">[[external_link_label]]</span> <a href="[[external_link]]">[[external_link_stripped]]</a></div>
+
 </header>
 
 <article>
 	<div id="bodyContainer" class="articleBody [[text_size_class]]">[[body]]</div>
-	<div class="externalLink"><a href="[[external_link]]"><span class="externalLinkLabel">[[external_link_label]]</span><span class="externalLinkHost">[[external_link]]</span></a></div>
 </article>
+
+<nav class="readingMap" aria-label="Reading map" hidden><ol></ol></nav>
 
 <script type="text/javascript">
 	/*
-	The arrow-circle-right SVG is provided by Font Awesome under the Creative Commons Attribution 4.0 International License.
-	For more details view the license here: https://fontawesome.com/license
+	Link posts (Daring Fireball and the like) carry the URL of the piece being
+	linked to. The stylesheet already hides the line when NetNewsWire leaves it
+	empty; this also catches a template placeholder left unfilled.
 	*/
-	let externalLinkBlock = document.body.getElementsByClassName('externalLink')[0];
-	let externalLinkAnchor = externalLinkBlock.querySelectorAll('a')[0];
-	let externalLinkHost = externalLinkBlock.getElementsByClassName('externalLinkHost')[0];
-
-	if (externalLinkHost.innerText.trim() === '' || externalLinkAnchor.getAttribute('href').trim() === '') {
-		/* No external link on this item. Hide the whole block rather than leaving an empty button. */
-		externalLinkBlock.setAttribute('hidden', '');
-	} else {
-		let host = externalLinkAnchor.hostname;
-		externalLinkHost.innerHTML = host + " " + '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-circle-right" class="svg-inline--fa fa-arrow-circle-right fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8c137 0 248 111 248 248S393 504 256 504 8 393 8 256 119 8 256 8zm-28.9 143.6l75.5 72.4H120c-13.3 0-24 10.7-24 24v16c0 13.3 10.7 24 24 24h182.6l-75.5 72.4c-9.7 9.3-9.9 24.8-.4 34.3l11 10.9c9.4 9.4 24.6 9.4 33.9 0L404.3 273c9.4-9.4 9.4-24.6 0-33.9L271.6 106.3c-9.4-9.4-24.6-9.4-33.9 0l-11 10.9c-9.5 9.6-9.3 25.1.4 34.4z"></path></svg>';
+	let externalLink = document.querySelector('.externalLink');
+	if (externalLink) {
+		let anchor = externalLink.querySelector('a');
+		let placeholder = /^\s*\[\[[^\]]+\]\]\s*$/;
+		let href = anchor ? (anchor.getAttribute('href') || '') : '';
+		let text = anchor ? anchor.textContent : '';
+		if (!href.trim() || !text.trim() || placeholder.test(href) || placeholder.test(text)) {
+			externalLink.hidden = true;
+		}
 	}
 
 	/*
@@ -85,19 +88,6 @@ body: The body of the article.
 			readingTime.setAttribute('aria-label', 'Estimated reading time: ' + minutes + ' minutes');
 			readingTime.removeAttribute('hidden');
 		}
-	}
-
-	/*
-	Links whose text is a bare URL (common in link aggregators like hnrss) are
-	one long unbreakable word. In justified text the URL drops to the next line
-	and leaves huge gaps behind it. Let these break anywhere so they fill the line.
-	*/
-	if (bodyContainer) {
-		bodyContainer.querySelectorAll('a').forEach(function (link) {
-			if (/^\s*(https?:\/\/|www\.)\S+\s*$/i.test(link.textContent)) {
-				link.classList.add('bareUrl');
-			}
-		});
 	}
 
 	/*
@@ -181,4 +171,286 @@ body: The body of the article.
 			iconElement.parentElement.style.display = 'none';
 		});
 	}
+	/*
+	Reading map. A hairline in the right margin, like the rule between
+	broadsheet columns, with a dot for each section placed where that section
+	falls in the article. Click a dot to jump to it, or drag along the rule to
+	scrub (the drag snaps to nearby dots). Arrow keys move between dots.
+	- Sections come from the article's own headings: empty ones, ones that
+	  repeat the title, very long ones, duplicates and boilerplate ("Related",
+	  "Share this") are skipped. Only the top heading level is used unless
+	  that gives too few, and at most eight are kept, sampled evenly.
+	- Fewer than three usable headings: five depth dots (top to end) instead.
+	- Hidden on short articles (under two screens), re-checked as images load.
+	  Hidden on panes under 440px wide and on phones in landscape.
+	- Headings on the last screen can't scroll to the top, so they are spread
+	  over the final stretch of scrolling to give each a turn as current.
+	*/
+	(function () {
+		const map = document.querySelector('.readingMap');
+		const list = map && map.querySelector('ol');
+		const container = document.getElementById('bodyContainer');
+		if (!map || !list || !container) {
+			return;
+		}
+
+		const root = document.documentElement;
+		const header = document.querySelector('.feedHeader');
+		const titleText = (document.querySelector('.articleTitle h1') || {}).textContent || '';
+		const compactQuery = window.matchMedia('(max-width: 439px), (pointer: coarse) and (max-height: 500px)');
+		const coarseQuery = window.matchMedia('(pointer: coarse)');
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const MAX_HEADINGS = 8;
+		const MIN_HEADINGS = 3;
+		const boilerplate = /^(advertisement|sponsored|related( posts| stories)?|share( this)?|comments?|more( stories)?|newsletter|subscribe)$/i;
+
+		function normalize(text) {
+			return text.replace(/\s+/g, ' ').trim();
+		}
+
+		/* Build the list of places the map can jump to. */
+		const titleKey = normalize(titleText).toLowerCase();
+		const seen = {};
+		let headings = Array.from(container.querySelectorAll('h1, h2, h3, h4, h5, h6')).filter(function (heading) {
+			let text = normalize(heading.textContent);
+			let key = text.toLowerCase();
+			if (!text || text.length > 100 || key === titleKey || boilerplate.test(text) || seen[key] || heading.getClientRects().length === 0) {
+				return false;
+			}
+			seen[key] = true;
+			return true;
+		});
+		const levelOf = function (heading) { return Number(heading.tagName.charAt(1)); };
+		const topLevel = Math.min.apply(null, headings.map(levelOf).concat(6));
+		let picked = headings.filter(function (heading) { return levelOf(heading) === topLevel; });
+		if (picked.length < MIN_HEADINGS) {
+			picked = headings.filter(function (heading) { return levelOf(heading) <= topLevel + 1; });
+		}
+		if (picked.length > MAX_HEADINGS) {
+			picked = Array.from({ length: MAX_HEADINGS }, function (unused, index) {
+				return picked[Math.round(index * (picked.length - 1) / (MAX_HEADINGS - 1))];
+			});
+		}
+
+		let targets;
+		if (picked.length >= MIN_HEADINGS) {
+			targets = [{ element: header, label: normalize(titleText) || 'Top' }].concat(picked.map(function (heading) {
+				return { element: heading, label: normalize(heading.textContent) };
+			}));
+		} else {
+			targets = [0, 0.25, 0.5, 0.75, 1].map(function (ratio, index) {
+				let labels = [normalize(titleText) || 'Top', 'A quarter in', 'Halfway', 'Three quarters in', 'End'];
+				return { ratio: ratio, label: labels[index] };
+			});
+		}
+
+		const buttons = targets.map(function (target, index) {
+			let item = document.createElement('li');
+			let button = document.createElement('button');
+			button.type = 'button';
+			button.tabIndex = -1;
+			button.setAttribute('aria-label', target.label);
+			button.dataset.label = target.label;
+			button.addEventListener('click', function (event) {
+				/* Mouse and touch are handled by the scrub code below; this is for Enter and Space. */
+				if (event.detail === 0) {
+					jumpTo(index);
+				}
+			});
+			item.appendChild(button);
+			list.appendChild(item);
+			return button;
+		});
+
+		let scrollTops = [];
+		let markerYs = [];
+		let activeIndex = -1;
+
+		function scrollMax() {
+			return Math.max(0, root.scrollHeight - window.innerHeight);
+		}
+
+		function measure() {
+			let max = scrollMax();
+			let offset = Math.max(72, Math.min(128, window.innerHeight * 0.12));
+			scrollTops = targets.map(function (target, index) {
+				if (!target.element) {
+					return Math.round(max * target.ratio);
+				}
+				if (index === 0) {
+					return 0;
+				}
+				let top = target.element.getBoundingClientRect().top + window.scrollY - offset;
+				return Math.max(0, Math.min(max, Math.round(top)));
+			});
+
+			let firstStuck = scrollTops.findIndex(function (top, index) { return index > 0 && top >= max; });
+			if (firstStuck > 0 && targets[0].element) {
+				let start = scrollTops[firstStuck - 1];
+				let count = scrollTops.length - firstStuck;
+				for (let step = 0; step < count; step++) {
+					scrollTops[firstStuck + step] = Math.round(start + (max - start) * (step + 1) / count);
+				}
+			}
+
+			/* Place each dot in proportion along the rule, then push apart any that crowd. */
+			let height = map.clientHeight;
+			let gap = Math.min(coarseQuery.matches ? 32 : 16, height / Math.max(1, targets.length - 1));
+			markerYs = scrollTops.map(function (top) { return max > 0 ? (top / max) * height : 0; });
+			for (let i = 1; i < markerYs.length; i++) {
+				markerYs[i] = Math.max(markerYs[i], markerYs[i - 1] + gap);
+			}
+			for (let i = markerYs.length - 1; i >= 0; i--) {
+				let limit = i === markerYs.length - 1 ? height : markerYs[i + 1] - gap;
+				markerYs[i] = Math.max(0, Math.min(markerYs[i], limit));
+			}
+			buttons.forEach(function (button, index) {
+				button.style.top = markerYs[index] + 'px';
+			});
+
+			/* Sit just right of the text column, but never closer than 22px to the window edge. */
+			let columnRight = container.getBoundingClientRect().right;
+			map.style.left = Math.min(columnRight + 26, root.clientWidth - 22) + 'px';
+		}
+
+		function setActive(index) {
+			if (index === activeIndex) {
+				return;
+			}
+			activeIndex = index;
+			buttons.forEach(function (button, i) {
+				let active = i === index;
+				button.classList.toggle('active', active);
+				button.tabIndex = active ? 0 : -1;
+				if (active) {
+					button.setAttribute('aria-current', 'location');
+				} else {
+					button.removeAttribute('aria-current');
+				}
+			});
+		}
+
+		function updateActive() {
+			let y = window.scrollY + 2;
+			let index = 0;
+			scrollTops.forEach(function (top, i) {
+				if (y >= top) {
+					index = i;
+				}
+			});
+			setActive(index);
+		}
+
+		function jumpTo(index) {
+			window.scrollTo({ top: scrollTops[index], behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+			setActive(index);
+		}
+
+		function nearestIndex(localY) {
+			let best = 0;
+			markerYs.forEach(function (y, i) {
+				if (Math.abs(y - localY) < Math.abs(markerYs[best] - localY)) {
+					best = i;
+				}
+			});
+			return best;
+		}
+
+		function layout() {
+			let enabled = !compactQuery.matches && root.scrollHeight >= window.innerHeight * 2;
+			map.hidden = !enabled;
+			document.body.classList.toggle('hasMap', enabled);
+			if (enabled) {
+				measure();
+				updateActive();
+			}
+		}
+
+		/* Scrubbing. A press without movement jumps to the nearest dot; a drag scrolls live. */
+		let drag = null;
+
+		map.addEventListener('pointerdown', function (event) {
+			if (event.button !== 0 || !event.isPrimary) {
+				return;
+			}
+			event.preventDefault();
+			try {
+				map.setPointerCapture(event.pointerId);
+			} catch (error) {
+				/* Without capture the drag ends when the pointer leaves the rule. */
+			}
+			drag = { id: event.pointerId, startY: event.clientY, moved: false };
+		});
+
+		map.addEventListener('pointermove', function (event) {
+			if (!drag || event.pointerId !== drag.id) {
+				return;
+			}
+			if (!drag.moved && Math.abs(event.clientY - drag.startY) < 4) {
+				return;
+			}
+			drag.moved = true;
+			map.classList.add('isScrubbing');
+			let localY = event.clientY - map.getBoundingClientRect().top;
+			let snap = coarseQuery.matches ? 14 : 8;
+			let index = nearestIndex(localY);
+			let top = Math.abs(markerYs[index] - localY) <= snap ?
+				scrollTops[index] :
+				Math.max(0, Math.min(1, localY / map.clientHeight)) * scrollMax();
+			window.scrollTo(0, top);
+		});
+
+		function endDrag(event, cancelled) {
+			if (!drag || event.pointerId !== drag.id) {
+				return;
+			}
+			let wasClick = !drag.moved && !cancelled;
+			drag = null;
+			map.classList.remove('isScrubbing');
+			if (wasClick) {
+				jumpTo(nearestIndex(event.clientY - map.getBoundingClientRect().top));
+			}
+		}
+
+		map.addEventListener('pointerup', function (event) { endDrag(event, false); });
+		map.addEventListener('pointercancel', function (event) { endDrag(event, true); });
+		map.addEventListener('lostpointercapture', function (event) { endDrag(event, true); });
+
+		list.addEventListener('keydown', function (event) {
+			let next = { ArrowDown: activeIndex + 1, ArrowUp: activeIndex - 1, Home: 0, End: buttons.length - 1 }[event.key];
+			if (next === undefined) {
+				return;
+			}
+			event.preventDefault();
+			next = Math.max(0, Math.min(buttons.length - 1, next));
+			jumpTo(next);
+			buttons[next].focus();
+		});
+
+		/* Keep everything in step with scrolling, resizing and late-loading media. */
+		let frame = null;
+		function schedule(work) {
+			if (frame === null) {
+				frame = requestAnimationFrame(function () {
+					frame = null;
+					work();
+				});
+			}
+		}
+
+		window.addEventListener('scroll', function () {
+			if (!map.hidden) {
+				schedule(updateActive);
+			}
+		}, { passive: true });
+		window.addEventListener('resize', function () { schedule(layout); });
+		container.addEventListener('load', function () { schedule(layout); }, true);
+		if ('ResizeObserver' in window) {
+			new ResizeObserver(function () { schedule(layout); }).observe(container);
+		}
+		compactQuery.addEventListener('change', layout);
+		coarseQuery.addEventListener('change', layout);
+
+		layout();
+	})();
 </script>
