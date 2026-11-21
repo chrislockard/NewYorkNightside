@@ -16,15 +16,17 @@ Longer articles get an estimated reading time in the dateline and a reading
 map: a hairline in the right margin, like the rule between newspaper columns,
 with a dot for each section placed where it falls in the article. Click a dot
 to jump to that section, or drag along the rule to scrub through the piece.
-Articles without headings get five evenly spaced dots instead. The map shows
-in reading panes 440px wide and up (it hides on iPhone), and the theme
-respects the system's Increase Contrast setting.
+Articles without headings get five evenly spaced dots instead. The map stays
+out of sight while you read and fades in when you scroll or point at the
+margin. It shows in reading panes 440px wide and up (it hides on iPhone), and
+the theme respects the system's Increase Contrast setting. Hat tip to Raisul
+Chowdhury's [Calm](https://raisul.xyz/projects/calm) theme for the idea.
 
-**New in v5:** body copy is no longer justified. Ragged-right setting with
-hyphenation does away with the wide gaps between words that justified text
-opened up in narrower panes. v5 also adds the reading map, with a hat tip to
-Raisul Chowdhury's [Calm](https://raisul.xyz/projects/calm) theme for the
-inspiration. See [CHANGELOG.md](CHANGELOG.md) for what's new in each release.
+**New in v6:** the reading map fades out when you stop scrolling, leaving the
+margin clean. It shows for a moment when an article opens, comes back as soon
+as you scroll, and stays put while the pointer is over it or a dot has
+keyboard focus. See [CHANGELOG.md](CHANGELOG.md) for what's new in each
+release.
 
 Built dark-first. Both palettes are tuned to sit flush against NetNewsWire's own
 window colors, so the reading pane doesn't float on a different shade from the
@@ -83,6 +85,7 @@ Common changes:
 | --- | --- |
 | Justified instead of ragged-right | Add `text-align: justify;` to `.articleBody p` |
 | No reading map | Add `.readingMap { display: none !important; }` at the end |
+| Reading map always visible | Add `.readingMap { opacity: 1 !important; }` at the end |
 | No drop cap | Delete the `#bodyContainer .dropCap::first-letter` rule |
 | A different serif | Change `--font-serif` at the top |
 | Wider or narrower measure | Change `max-width` on `body` (currently `40em`) |

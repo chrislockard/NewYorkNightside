@@ -957,6 +957,24 @@ img[src*="share-buttons"] {
 	user-select: none;
 	font-family: var(--font-serif);
 	font-size: 12px;
+	/* Out of the way while reading; template.html wakes it on scroll. Still
+	   hoverable and clickable while faded. */
+	opacity: 0;
+	transition: opacity 600ms ease-in;
+}
+
+.readingMap.isAwake,
+.readingMap.isScrubbing,
+.readingMap:has(:focus-visible) {
+	opacity: 1;
+	transition: opacity 150ms ease-out;
+}
+
+@media (hover: hover) {
+	.readingMap:hover {
+		opacity: 1;
+		transition: opacity 150ms ease-out;
+	}
 }
 
 .readingMap[hidden] {

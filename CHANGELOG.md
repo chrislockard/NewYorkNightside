@@ -1,5 +1,15 @@
 # Changelog
 
+## v6 — 2026-11-20
+
+- **The reading map fades out while you read.** It shows for a couple of
+  seconds when an article opens so you know it's there, fades in whenever you
+  scroll, and fades out again about a second and a half after you stop. It
+  stays visible while the pointer is over it, while you're dragging along it,
+  and while a dot has keyboard focus. You can still point at or click the
+  margin while it's hidden. To keep it on screen all the time, see the new
+  line in the README's tweak table.
+
 ## v5 — 2026-11-20
 
 - **Reading map.** Articles two screens or longer get a hairline in the right

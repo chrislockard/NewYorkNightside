@@ -438,9 +438,20 @@ body: The body of the article.
 			}
 		}
 
+		/* Show the map while scrolling, then let it fade (see stylesheet.css). */
+		let sleepTimer = null;
+		function wake(duration) {
+			map.classList.add('isAwake');
+			clearTimeout(sleepTimer);
+			sleepTimer = setTimeout(function () {
+				map.classList.remove('isAwake');
+			}, duration);
+		}
+
 		window.addEventListener('scroll', function () {
 			if (!map.hidden) {
 				schedule(updateActive);
+				wake(1500);
 			}
 		}, { passive: true });
 		window.addEventListener('resize', function () { schedule(layout); });
@@ -452,5 +463,7 @@ body: The body of the article.
 		coarseQuery.addEventListener('change', layout);
 
 		layout();
+		/* A longer look on open, so the reader knows it's there. */
+		wake(2500);
 	})();
 </script>
